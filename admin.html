@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+
+  <style>
+    body {
+        font-family: Arial;
+        background: #f5f5f5;
+        text-align: center;
+        padding: 20px;
+    }
+
+    input {
+        padding: 10px;
+        margin: 5px;
+    }
+
+    button {
+        padding: 10px 15px;
+        margin: 10px;
+        background: black;
+        color: white;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .card {
+        background: white;
+        padding: 15px;
+        margin: 10px auto;
+        width: 250px;
+        border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Admin Panel 📊</h1>
+
+<!-- ADD FOOD -->
+<h3>Add Food</h3>
+<input id="name" placeholder="Food Name">
+<input id="price" placeholder="Price">
+<button onclick="addFood()">Add Food</button>
+
+<!-- ORDERS -->
+<h2>Orders 📦</h2>
+<div id="orders"></div>
+
+<!-- FOOD LIST -->
+<h3>Manage Foods</h3>
+<div id="list"></div>
+
+<script>
+
+  // ================= FOOD =================
+  let foods = JSON.parse(localStorage.getItem("foods")) || [];
+
+  function render() {
+      let list = document.getElementById("list");
+      list.innerHTML = "";
+
+      foods.forEach((f, i) => {
+          list.innerHTML += `
+          <div class="card">
+              ${f.name} - ₹${f.price}
+              <br>
+              <button onclick="del(${i})">Delete</button>
+          </div>`;
+      });
+  }
+
+  function addFood() {
+      let name = document.getElementById("name").value;
+      let price = document.getElementById("price").value;
+
+      if (!name || !price) {
+          alert("Enter all details");
+          return;
+      }
+
+      foods.push({ name, price });
+      localStorage.setItem("foods", JSON.stringify(foods));
+
+      render();
+  }
+
+  function del(i) {
+      foods.splice(i, 1);
+      localStorage.setItem("foods", JSON.stringify(foods));
+      render();
+  }
+
+
+  // ================= ORDERS =================
+  function loadOrders() {
+      let orders = JSON.parse(localStorage.getItem("orders")) || [];
+      let container = document.getElementById("orders");
+
+      container.innerHTML = "";
+
+      if (orders.length === 0) {
+          container.innerHTML = "<h3>No orders yet 😢</h3>";
+          return;
+      }
+
+      orders.forEach((order, index) => {
+    let itemsHTML = "";
+
+    for (let item in order.items) {
+        let i = order.items[item];
+        itemsHTML += `${item} x ${i.qty}<br>`;
+    }
+
+    container.innerHTML += `
+    <div class="card">
+        <h4>Order ${index + 1}</h4>
+        ${itemsHTML}
+        <p>Total: ₹${order.total}</p>
+        <p>Status: ${order.status}</p>
+        <button onclick="markDone(${index})">Mark Done</button>
+    </div>
+    `;
+});
+  }
+
+  function markDone(index) {
+      let orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+      orders[index].status = "Completed";
+
+      localStorage.setItem("orders", JSON.stringify(orders));
+
+      loadOrders();
+  }
+
+
+  // ================= INIT =================
+  render();
+  loadOrders();
+
+</script>
+
+</body>
+</html>

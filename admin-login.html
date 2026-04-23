@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login</title>
+    <style>
+        body {
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f5f5f5;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        input {
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: black;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>Admin Login 🔐</h2>
+    <input type="password" id="pass" placeholder="Enter Password">
+    <br>
+    <button onclick="login()">Login</button>
+</div>
+
+<script>
+    function login() {
+        let pass = document.getElementById("pass").value;
+
+        if (pass === "1234") {
+            localStorage.setItem("admin", "true");
+            window.location.href = "admin.html";
+        } else {
+            alert("Wrong Password ❌");
+        }
+    }
+</script>
+
+</body>
+</html>

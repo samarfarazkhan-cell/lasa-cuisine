@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Order History</title>
+  <style>
+    body {
+        font-family: Arial;
+        background: #f5f5f5;
+        padding: 20px;
+    }
+
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    .order-box {
+        background: white;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        transition: 0.3s;
+    }
+
+    .order-box:hover {
+        transform: scale(1.02);
+    }
+
+    .date {
+        font-size: 14px;
+        color: gray;
+        margin-bottom: 10px;
+    }
+
+    .total {
+        font-weight: bold;
+        margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Order History 📜</h1>
+
+<div id="history"></div>
+
+<script>
+  let orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+  let container = document.getElementById("history");
+
+  if (orders.length === 0) {
+      container.innerHTML = "<h3>No orders yet 😢</h3>";
+  } else {
+      orders.slice().reverse().forEach(order => {
+
+          let div = document.createElement("div");
+
+          let itemsText = "";
+          for (let item in order.items) {
+              itemsText += `${item} x ${order.items[item].quantity}<br>`;
+          }
+
+          div.className = "order-box";
+
+          div.innerHTML = `
+              <div class="date">📅 ${order.date}</div>
+              <div>${itemsText}</div>
+              <div class="total">Total: ₹${order.total}</div>
+          `;
+
+          container.appendChild(div);
+      });
+  }
+</script>
+
+</body>
+</html>
