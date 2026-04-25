@@ -23,6 +23,11 @@
             width:300px;
             text-align:center;
             box-shadow:0 0 20px rgba(0,0,0,0.5);
+            animation: fadeIn 0.5s ease;
+        }
+
+        h2 {
+            margin-bottom: 15px;
         }
 
         input{
@@ -31,6 +36,11 @@
             margin-top:10px;
             border-radius:8px;
             border:none;
+        }
+
+        input:focus {
+            outline:none;
+            border:1px solid #4caf50;
         }
 
         button{
@@ -42,6 +52,8 @@
             color:white;
             border-radius:8px;
             cursor:pointer;
+            font-size:15px;
+            transition:0.3s;
         }
 
         button:hover{
@@ -52,6 +64,11 @@
             font-size:13px;
             margin-top:10px;
             color:gray;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -88,7 +105,7 @@
             return;
         }
 
-        // 📱 Phone validation (basic)
+        // 📱 Phone validation
         if(!/^[0-9]{10}$/.test(phone)){
             alert("Enter valid 10-digit phone number 📱");
             return;
