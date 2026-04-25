@@ -12,9 +12,15 @@
         margin: 0;
     }
 
-    h1 { text-align: center; margin-top: 20px; }
+    h1 {
+        text-align: center;
+        margin-top: 20px;
+    }
 
-    .container { max-width: 900px; margin: auto; }
+    .container {
+        max-width: 900px;
+        margin: auto;
+    }
 
     .card {
         background: #1a1a1a;
@@ -31,8 +37,16 @@
         cursor: pointer;
     }
 
-    .done { background: green; color: white; }
-    .delete { background: red; color: white; }
+    .done {
+        background: green;
+        color: white;
+    }
+
+    .delete {
+        background: red;
+        color: white;
+    }
+
   </style>
 </head>
 
@@ -40,6 +54,7 @@
 
 <script>
   let pass = prompt("Enter Admin Password");
+
   if(pass !== "1234"){
       alert("Access Denied ❌");
       window.location.href = "index.html";
@@ -50,7 +65,7 @@
 
 <div class="container" id="orders"></div>
 
-<!-- 🔥 FIREBASE -->
+<!-- 🔥 FIREBASE + LOGIC -->
 <script type="module">
 
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -68,76 +83,71 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  const container = document.getElementById("orders");
-
-  // 🔥 LOAD ORDERS
   async function loadOrders(){
 
-      container.innerHTML = "Loading...";
+    const container = document.getElementById("orders");
+    container.innerHTML = "";
 
-      const querySnapshot = await getDocs(collection(db, "orders"));
+    const querySnapshot = await getDocs(collection(db, "orders"));
 
-      if(querySnapshot.empty){
-          container.innerHTML = "<p>No Orders Found 📭</p>";
-          return;
-      }
+    if(querySnapshot.empty){
+      container.innerHTML = "<p style='text-align:center;color:gray;'>No Orders 📭</p>";
+      return;
+    }
 
-      container.innerHTML = "";
+    querySnapshot.forEach((docSnap) => {
 
-      querySnapshot.forEach(docSnap => {
+      const order = docSnap.data();
+      const id = docSnap.id;
 
-          let order = docSnap.data();
-          let id = docSnap.id;
+      let statusColor = order.status === "Completed" ? "green" : "orange";
 
-          let html = `
-          <div class="card">
-              <h3>₹${order.total}</h3>
-              <p>${order.time}</p>
-              <p>👤 ${order.name}</p>
-              <p>📞 ${order.phone}</p>
-              <p>📍 ${order.address}</p>
+      let html = `
+      <div class="card">
+        <h3>₹${order.total}</h3>
+        <p>${order.time}</p>
+        <p>👤 ${order.name}</p>
+        <p>📞 ${order.phone}</p>
+        <p>📍 ${order.address}</p>
 
-              <p>Status: ${order.status}</p>
-          `;
+        <p style="color:${statusColor}; font-weight:bold;">
+          ${order.status}
+        </p>
+      `;
 
-          order.items.forEach(i=>{
-              html += `<p>• ${i.item} x ${i.qty}</p>`;
-          });
-
-          html += `
-              <button class="done" onclick="toggleStatus('${id}','${order.status}')">
-                  Toggle Status
-              </button>
-
-              <button class="delete" onclick="deleteOrder('${id}')">
-                  Delete
-              </button>
-          </div>
-          `;
-
-          container.innerHTML += html;
+      order.items.forEach(i=>{
+        html += `<p>• ${i.item} x ${i.qty}</p>`;
       });
+
+      html += `
+        <button class="done" onclick="toggleStatus('${id}', '${order.status}')">
+          Toggle Status
+        </button>
+
+        <button class="delete" onclick="deleteOrder('${id}')">
+          Delete
+        </button>
+      </div>
+      `;
+
+      container.innerHTML += html;
+    });
   }
 
   // 🔥 DELETE
   window.deleteOrder = async function(id){
-      if(confirm("Delete this order?")){
-          await deleteDoc(doc(db, "orders", id));
-          loadOrders();
-      }
+    await deleteDoc(doc(db, "orders", id));
+    loadOrders();
   }
 
-  // 🔥 TOGGLE STATUS
+  // 🔥 STATUS CHANGE
   window.toggleStatus = async function(id, status){
-      let newStatus = status === "Pending" ? "Completed" : "Pending";
-
-      await updateDoc(doc(db, "orders", id), {
-          status: newStatus
-      });
-
-      loadOrders();
+    let newStatus = status === "Pending" ? "Completed" : "Pending";
+    await updateDoc(doc(db, "orders", id), { status: newStatus });
+    loadOrders();
   }
 
+  // START
   loadOrders();
 
 </script>

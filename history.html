@@ -67,48 +67,44 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  const container = document.getElementById("orders");
-
-  // 🔥 LOAD FROM FIREBASE
   async function loadOrders(){
 
-      const querySnapshot = await getDocs(collection(db, "orders"));
+    const container = document.getElementById("orders");
+    container.innerHTML = "";
 
-      if(querySnapshot.empty){
-          container.innerHTML = `<p class="empty">No orders yet 😢</p>`;
-          return;
-      }
+    const querySnapshot = await getDocs(collection(db, "orders"));
 
-      let orders = [];
+    if(querySnapshot.empty){
+      container.innerHTML = `<p class="empty">No orders yet 😢</p>`;
+      return;
+    }
 
-      querySnapshot.forEach(doc=>{
-          orders.push(doc.data());
+    querySnapshot.forEach(doc => {
+      const order = doc.data();
+
+      let total = order.total;
+
+      let html = `
+      <div class="order">
+        <h3>${order.name} | ₹${total}</h3>
+        <p>${order.time}</p>
+        <p>📞 ${order.phone}</p>
+        <p>📍 ${order.address}</p>
+      `;
+
+      order.items.forEach(i=>{
+        html += `<div class="item">• ${i.item} x ${i.qty}</div>`;
       });
 
-      // latest first
-      orders.reverse();
+      html += `</div>`;
 
-      orders.forEach(order=>{
-
-          let html = `
-          <div class="order">
-              <h3>${order.name} | ₹${order.total}</h3>
-              <p>📅 ${order.time}</p>
-              <p>📞 ${order.phone}</p>
-              <p>📍 ${order.address}</p>
-          `;
-
-          order.items.forEach(i=>{
-              html += `<div class="item">• ${i.item} x ${i.qty}</div>`;
-          });
-
-          html += `</div>`;
-
-          container.innerHTML += html;
-      });
+      container.innerHTML += html;
+    });
   }
 
   loadOrders();
+
+</script>
 
 </script>
 
