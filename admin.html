@@ -93,7 +93,9 @@
               <p>📞 ${order.phone || ""}</p>
               <p>📍 ${order.address || ""}</p>
 
-              <p>${order.status}</p>
+              <p style="color:${order.status === 'Pending' ? 'orange' : 'lime'}; font-weight:bold;">
+    ${order.status}
+</p>
           `;
 
           (order.items || []).forEach(i=>{
@@ -101,9 +103,9 @@
           });
 
           html += `
-          <button onclick="toggleStatus('${id}', '${order.status}')">
-              Toggle Status
-          </button>
+          <button class="done" onclick="toggleStatus('${id}', '${order.status}')">
+    ${order.status === "Pending" ? "Mark Completed" : "Mark Pending"}
+</button>
 
           <button onclick="deleteOrder('${id}')">
               Delete
