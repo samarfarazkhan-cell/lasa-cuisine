@@ -10,7 +10,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 40px;
+    padding: 15px 30px;
 }
 
 /* LOGO */
@@ -22,16 +22,21 @@ body {
 .right {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
 }
 
 /* SEARCH */
 .search {
-    padding: 10px;
+    padding: 10px 15px;
     background: transparent;
     border: 1px solid #444;
     color: white;
-    border-radius: 6px;
+    border-radius: 8px;
+    outline: none;
+}
+
+.search:focus {
+    border-color: #ff6b6b;
 }
 
 /* BUTTON */
@@ -41,6 +46,12 @@ body {
     border-radius: 8px;
     color: #ff6b6b;
     text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #ff6b6b;
+    color: white;
 }
 
 /* CART */
@@ -50,6 +61,11 @@ body {
     border-radius: 8px;
     color: white;
     text-decoration: none;
+    transition: 0.3s;
+}
+
+.cart:hover {
+    background: #222;
 }
 
 /* BADGE */
@@ -62,7 +78,7 @@ body {
 
 /* HERO */
 .hero {
-    margin: 20px 40px;
+    margin: 20px 30px;
     padding: 40px;
     background: linear-gradient(to right, #111, #1a1a1a);
     border-radius: 15px;
@@ -74,7 +90,7 @@ body {
 }
 
 .hero h1 {
-    font-size: 40px;
+    font-size: 36px;
     color: #ff6b6b;
 }
 
@@ -83,7 +99,7 @@ body {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
-    padding: 20px 40px;
+    padding: 20px 30px;
 }
 
 /* CARD */
@@ -93,10 +109,12 @@ body {
     border-radius: 15px;
     text-align: center;
     transition: 0.3s;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 
 .card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(255,107,107,0.2);
 }
 
 /* IMAGE */
@@ -114,6 +132,7 @@ body {
 
 .price {
     color: #ff6b6b;
+    font-size: 18px;
 }
 
 /* QTY */
@@ -128,13 +147,22 @@ body {
     background: black;
     color: white;
     border: none;
-    padding: 5px 12px;
+    padding: 6px 12px;
     border-radius: 6px;
     cursor: pointer;
+    transition: 0.3s;
+}
+
+.qty button:hover {
+    background: #333;
 }
 
 .qty .add {
     background: #ff6b6b;
+}
+
+.qty .add:hover {
+    background: #ff4c4c;
 }
 
 /* FOOTER */
@@ -144,3 +172,25 @@ body {
     color: gray;
 }
 
+/* 📱 RESPONSIVE */
+@media(max-width: 900px){
+    .container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media(max-width: 500px){
+    .container {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .right {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}

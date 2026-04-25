@@ -35,7 +35,6 @@
         color: gray;
     }
 
-    /* 🔔 Notification */
     .toast {
         position: fixed;
         bottom: 20px;
@@ -45,12 +44,18 @@
         padding: 12px 20px;
         border-radius: 10px;
         display: none;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
   </style>
 </head>
 
 <body>
+
+<!-- 🔐 LOGIN CHECK -->
+<script>
+  if(!localStorage.getItem("userData")){
+      window.location.href = "user-login.html";
+  }
+</script>
 
 <div class="container">
   <h1>📜 Order History</h1>
@@ -63,7 +68,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
   import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-  // ✅ FULL CORRECT CONFIG
   const firebaseConfig = {
     apiKey: "AIzaSyDdPkJcjawP46Bl81zr6KDl_eGiIwO7dCE",
     authDomain: "lasa-cuisine.firebaseapp.com",
@@ -79,7 +83,10 @@
   const container = document.getElementById("orders");
   const toast = document.getElementById("toast");
 
-  // 🔁 previous state track
+  // 👤 Current user
+  let user = JSON.parse(localStorage.getItem("userData"));
+
+  // 🔁 Track previous state
   let prevStatus = {};
 
   onSnapshot(collection(db, "orders"), (snapshot) => {
@@ -91,12 +98,19 @@
           return;
       }
 
+      let found = false;
+
       snapshot.forEach(doc => {
 
           const order = doc.data();
           const id = doc.id;
 
-          // 🔔 Notification logic
+          // 🔐 FILTER (ONLY USER ORDERS)
+          if(user && order.phone !== user.phone) return;
+
+          found = true;
+
+          // 🔔 Notification
           if(prevStatus[id] && prevStatus[id] === "Pending" && order.status === "Completed"){
               showToast();
           }
@@ -119,8 +133,6 @@
                   border-radius:20px;
                   font-size:13px;
                   color:white;
-                  display:inline-block;
-                  margin-top:5px;
               ">
                   ${order.status}
               </span>
@@ -135,9 +147,13 @@
           container.innerHTML += html;
       });
 
+      if(!found){
+          container.innerHTML = "<p class='empty'>No orders found 😢</p>";
+      }
+
   });
 
-  // 🔔 Toast function
+  // 🔔 Toast
   function showToast(){
       toast.style.display = "block";
       setTimeout(()=>{

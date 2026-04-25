@@ -13,7 +13,6 @@
         linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)),
         url("images/bg.jpeg");
         background-size: cover;
-        background-attachment: fixed;
     }
 
     .cart-wrapper {
@@ -67,6 +66,13 @@
 
 <body>
 
+<!-- 🔐 LOGIN CHECK -->
+<script>
+  if(!localStorage.getItem("userData")){
+      window.location.href = "user-login.html";
+  }
+</script>
+
 <div class="cart-wrapper">
   <h1>Your Cart 🛒</h1>
 
@@ -84,12 +90,27 @@
 </div>
 
 <script>
+
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
+  // 👤 AUTO FILL
+  let user = JSON.parse(localStorage.getItem("userData"));
+  if(user){
+      document.getElementById("name").value = user.name;
+      document.getElementById("phone").value = user.phone;
+  }
+
+  // 🛒 LOAD CART
   function loadCart(){
       let container = document.getElementById("cart-items");
       let total = 0;
       container.innerHTML = "";
+
+      if(cart.length === 0){
+          container.innerHTML = "<p style='text-align:center;color:gray;'>Cart Empty</p>";
+          document.getElementById("total").innerText = "";
+          return;
+      }
 
       cart.forEach((item,i)=>{
           total += item.price * item.qty;
@@ -109,6 +130,7 @@
       document.getElementById("total").innerText = "Total: ₹" + total;
   }
 
+  // ➕➖
   function inc(i){ cart[i].qty++; save(); }
   function dec(i){ cart[i].qty--; if(cart[i].qty<=0) cart.splice(i,1); save(); }
 
@@ -117,21 +139,34 @@
       loadCart();
   }
 
-  // 💳 PAYMENT
+  // 💳 PAYMENT (FIXED)
   function payNow(){
+
+      let name = document.getElementById("name").value;
+      let phone = document.getElementById("phone").value;
+      let address = document.getElementById("address").value;
+
+      if(!name || !phone || !address){
+          alert("Fill all details first");
+          return;
+      }
+
+      if(cart.length === 0){
+          alert("Cart empty");
+          return;
+      }
+
       let total = cart.reduce((s,i)=>s + i.price*i.qty,0);
 
       let upi = "upi://pay?pa=yourupi@okaxis&pn=LasaCuisine&am="+total+"&cu=INR";
 
-      // QR generate
       document.getElementById("qr").src =
       "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(upi);
 
-      // Open UPI app
       window.location.href = upi;
   }
 
-  // 📲 WHATSAPP ORDER
+  // 📲 ORDER
   function placeOrder(){
 
       let name = document.getElementById("name").value;
@@ -140,6 +175,11 @@
 
       if(!name || !phone || !address){
           alert("Fill all details");
+          return;
+      }
+
+      if(cart.length === 0){
+          alert("Cart empty");
           return;
       }
 
@@ -183,6 +223,7 @@
   }
 
   loadCart();
+
 </script>
 
 <!-- 🔥 FIREBASE -->

@@ -5,7 +5,6 @@
     <title>Lasa Cuisine</title>
 
     <style>
-
         body {
             margin: 0;
             font-family: Arial;
@@ -16,7 +15,6 @@
             color: white;
         }
 
-        /* DARK OVERLAY */
         body::before {
             content: "";
             position: fixed;
@@ -28,7 +26,6 @@
             z-index: -1;
         }
 
-        /* HEADER */
         .header {
             display: flex;
             justify-content: space-between;
@@ -36,10 +33,7 @@
             padding: 20px 40px;
         }
 
-        .logo {
-            width: 300px;
-            height: auto;
-        }
+        .logo { width: 300px; }
 
         .right {
             display: flex;
@@ -48,62 +42,43 @@
         }
 
         .search {
-            padding: 10px;
-            background: transparent;
-            border: 1px solid #555;
-            color: white;
+            padding: 12px 18px;
+            font-size: 16px;
+            width: 220px;
             border-radius: 6px;
+            border: 1px solid #555;
+            background: transparent;
+            color: white;
         }
 
-        .btn {
-            border: 1px solid #ff6b6b;
-            padding: 8px 15px;
+        .btn, .admin-btn {
+            padding: 10px 18px;
             border-radius: 8px;
-            color: #ff6b6b;
             text-decoration: none;
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .btn:hover, .admin-btn:hover {
+            background: #ff6b6b;
+            color: white;
         }
 
         .cart {
             background: #111;
-            padding: 8px 15px;
+            padding: 10px 18px;
             border-radius: 8px;
-            text-decoration: none;
             color: white;
+            text-decoration: none;
         }
 
         .badge {
             background: red;
             border-radius: 50%;
-            padding: 3px 8px;
-            font-size: 12px;
+            padding: 4px 9px;
+            font-size: 13px;
         }
 
-        /* HERO BANNER */
-        .hero {
-            margin: 20px auto;
-            width: 95%;
-            height: 260px;
-            border-radius: 15px;
-
-            background: url("images/banner.png");
-            background-size: cover;
-            background-position: center;
-
-        }
-
-        .overlay {
-            background: rgba(0,0,0,0.6);
-            padding: 20px 30px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .overlay h1 {
-            color: #ff6b6b;
-            margin: 0;
-        }
-
-        /* GRID */
         .container {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -111,9 +86,9 @@
             padding: 20px 40px;
         }
 
-        /* CARD */
         .card {
-            background: rgba(20,20,20,0.9);
+            background: rgba(30,30,30,0.6);
+            backdrop-filter: blur(10px);
             padding: 15px;
             border-radius: 15px;
             text-align: center;
@@ -126,11 +101,8 @@
             border-radius: 10px;
         }
 
-        .price {
-            color: #ff6b6b;
-        }
+        .price { color: #ff6b6b; font-size: 20px; }
 
-        /* QTY */
         .qty {
             display: flex;
             justify-content: center;
@@ -139,200 +111,51 @@
         }
 
         .qty button {
-            background: black;
-            color: white;
+            padding: 8px 14px;
+            font-size: 18px;
+            border-radius: 8px;
             border: none;
-            padding: 5px 12px;
-            border-radius: 6px;
             cursor: pointer;
         }
 
-        .add {
-            background: #ff6b6b;
-        }
+        .add { background: #ff6b6b; color: white; }
 
-        /* FOOTER */
         .footer {
             text-align: center;
             padding: 20px;
             color: gray;
         }
-
-        /* ===== SIZE IMPROVEMENTS (SAFE) ===== */
-
-/* Menu name thoda bada */
-.card h3 {
-    font-size: 20px;
-}
-
-/* Price thoda clear */
-.price {
-    font-size: 20px;
-}
-
-/* Quantity number */
-.qty span {
-    font-size: 20px;
-}
-
-/* - + buttons bigger */
-.qty button {
-    padding: 8px 14px;
-    font-size: 20px;
-    border-radius: 8px;
-}
-
-        /* ===== HEADER SIZE IMPROVEMENT ===== */
-
-/* Search box bada */
-.search {
-    padding: 12px 18px;
-    font-size: 16px;
-    width: 220px;
-}
-
-/* Orders button */
-.btn {
-    padding: 10px 18px;
-    font-size: 15px;
-}
-
-/* Cart button */
-.cart {
-    padding: 10px 18px;
-    font-size: 15px;
-}
-
-/* Cart badge (0 wala red circle) */
-.badge {
-    font-size: 13px;
-    padding: 4px 9px;
-}
-
-        /* ===== CARD HOVER EFFECT ===== */
-.card {
-    transition: 0.3s;
-}
-
-.card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
-}
-
-/* ===== IMAGE ZOOM ===== */
-.card img {
-    transition: 0.3s;
-}
-
-.card:hover img {
-    transform: scale(1.05);
-}
-
-/* ===== BUTTON HOVER ===== */
-.qty button {
-    transition: 0.2s;
-}
-
-.qty button:hover {
-    transform: scale(1.1);
-}
-
-/* ===== ADD BUTTON GLOW ===== */
-.add:hover {
-    box-shadow: 0 0 10px #ff6b6b;
-}
-
-/* ===== HEADER BUTTON HOVER ===== */
-.btn:hover, .cart:hover {
-    background: #ff6b6b;
-    color: white;
-    transition: 0.3s;
-}
-
-/* ===== SEARCH FOCUS EFFECT ===== */
-.search:focus {
-    outline: none;
-    border: 1px solid #ff6b6b;
-    box-shadow: 0 0 8px #ff6b6b;
-}
-
-/* ===== SMOOTH TRANSITIONS GLOBAL ===== */
-* {
-    transition: 0.2s;
-}
-
-        .card {
-    background: rgba(30, 30, 30, 0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.08);
-}
-
-        body {
-    animation: fadeIn 0.6s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-        .card:hover {
-    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.25);
-}
-
-        h1, h2 {
-    letter-spacing: 1px;
-}
-
-        .admin-btn {
-    padding: 8px 15px;
-    border: 1px solid #ff6b6b;
-    border-radius: 8px;
-    text-decoration: none;
-    color: #ff6b6b;
-    margin-left: 10px;
-}
-
-.admin-btn:hover {
-    background: #ff6b6b;
-    color: white;
-}
-
     </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
+<!-- 🔐 USER LOGIN CHECK -->
+<script>
+    if(!localStorage.getItem("userData")){
+        window.location.href = "user-login.html";
+    }
+</script>
+
 <div class="header">
     <img src="images/logo.png" class="logo">
 
     <div class="right">
         <input type="text" class="search" placeholder="Search food...">
-        <a href="admin.html" class="admin-btn">Admin ⚙️</a>
+
+        <a href="admin.html" class="admin-btn" id="adminBtn" style="display:none;">Admin ⚙️</a>
         <a href="history.html" class="btn">Orders 📜</a>
+
         <a href="cart.html" class="cart">
             Cart 🛒 <span id="cart-count" class="badge">0</span>
         </a>
     </div>
 </div>
 
-<!-- HERO -->
-<div class="hero">
-</div>
-
-<!-- FOOD -->
 <div class="container" id="food-list"></div>
 
-<!-- FOOTER -->
 <div class="footer">
-    © 2025 Lasa Cuisine | Made with ❤️ for food lovers
+    © 2025 Lasa Cuisine | Made with ❤️
 </div>
 
 <script>
@@ -350,10 +173,11 @@
         {name:"Fried Chicken", price:500, img:"images/fried_chicken.jpeg"}
     ];
 
-    function loadFoods(){
+    function renderFoods(list){
         let container = document.getElementById("food-list");
-         container.innerHTML = "";
-        foods.forEach(food=>{
+        container.innerHTML = "";
+
+        list.forEach(food=>{
             let div = document.createElement("div");
             div.className="card";
 
@@ -376,22 +200,16 @@
     }
 
     function inc(name,price){
-
-    cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    let item = cart.find(i=>i.item===name);
+        let item = cart.find(i=>i.item===name);
         if(item) item.qty++;
-        else cart.push({item:name,price:price,qty:1});
+        else cart.push({item:name,price,qty:1});
 
         localStorage.setItem("cart",JSON.stringify(cart));
         updateUI();
     }
 
     function dec(name){
-
-    cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    let item = cart.find(i=>i.item===name);
+        let item = cart.find(i=>i.item===name);
         if(item){
             item.qty--;
             if(item.qty<=0) cart = cart.filter(i=>i.item!==name);
@@ -402,8 +220,6 @@
     }
 
     function updateUI(){
-
-    cart = JSON.parse(localStorage.getItem("cart")) || [];
         foods.forEach(f=>{
             let el=document.getElementById("q-"+f.name.replaceAll(" ",""));
             let item=cart.find(i=>i.item===f.name);
@@ -414,38 +230,22 @@
             cart.reduce((s,i)=>s+i.qty,0);
     }
 
-    loadFoods();
+    // 🔍 SEARCH
+    document.querySelector(".search").addEventListener("input", function(e){
+        let value = e.target.value.toLowerCase();
+        let filtered = foods.filter(f => f.name.toLowerCase().includes(value));
+        renderFoods(filtered);
+    });
 
-</script>
-<script type="module">
+    // 🔐 ADMIN BUTTON SHOW
+    if(localStorage.getItem("user") === "admin"){
+        document.getElementById("adminBtn").style.display = "inline-block";
+    }
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-    import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDdPkJcjawP46Bl81zr6KDl_eGiIwO7dCE",
-      authDomain: "lasa-cuisine.firebaseapp.com",
-      projectId: "lasa-cuisine",
-      storageBucket: "lasa-cuisine.firebasestorage.app",
-      messagingSenderId: "653046423280",
-      appId: "1:653046423280:web:5739519d03f5c1cb45ac35",
-      measurementId: "G-D9T51CC5FL"
-    };
-
-    // 🔥 Firebase start
-    const app = initializeApp(firebaseConfig);
-
-    // 🔥 Database connect
-    const db = getFirestore(app);
-
-    // 🔥 Global access (VERY IMPORTANT)
-    window.db = db;
-    window.addDoc = addDoc;
-    window.collection = collection;
+    // INIT
+    renderFoods(foods);
 
 </script>
 
 </body>
 </html>
-
-

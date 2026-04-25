@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>User Login</title>
+
+    <style>
+        body {
+            margin:0;
+            font-family: Arial;
+            background:#0b0b0b;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            color:white;
+        }
+
+        .box{
+            background:#1a1a1a;
+            padding:30px;
+            border-radius:15px;
+            width:300px;
+            text-align:center;
+            box-shadow:0 0 20px rgba(0,0,0,0.5);
+        }
+
+        input{
+            width:100%;
+            padding:10px;
+            margin-top:10px;
+            border-radius:8px;
+            border:none;
+        }
+
+        button{
+            width:100%;
+            padding:10px;
+            margin-top:15px;
+            background:#4caf50;
+            border:none;
+            color:white;
+            border-radius:8px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#43a047;
+        }
+
+        .msg{
+            font-size:13px;
+            margin-top:10px;
+            color:gray;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 🔐 Already logged in -->
+<script>
+    if(localStorage.getItem("userData")){
+        window.location.href = "index.html";
+    }
+</script>
+
+<div class="box">
+    <h2>👤 User Login</h2>
+
+    <input id="name" placeholder="Your Name">
+    <input id="phone" placeholder="Phone Number">
+
+    <button onclick="login()">Continue</button>
+
+    <div class="msg">Enter your details to continue</div>
+</div>
+
+<script>
+    function login(){
+
+        let name = document.getElementById("name").value.trim();
+        let phone = document.getElementById("phone").value.trim();
+
+        // ❗ Empty check
+        if(!name || !phone){
+            alert("Fill all details ⚠️");
+            return;
+        }
+
+        // 📱 Phone validation (basic)
+        if(!/^[0-9]{10}$/.test(phone)){
+            alert("Enter valid 10-digit phone number 📱");
+            return;
+        }
+
+        let user = {name, phone};
+
+        localStorage.setItem("userData", JSON.stringify(user));
+
+        window.location.href = "index.html";
+    }
+
+    // ⌨️ Enter key support
+    document.addEventListener("keydown", function(e){
+        if(e.key === "Enter"){
+            login();
+        }
+    });
+</script>
+
+</body>
+</html>

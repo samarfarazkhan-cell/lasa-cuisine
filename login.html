@@ -1,33 +1,113 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Login</title>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+
+  <style>
+    body {
+        margin: 0;
+        font-family: Arial;
+        background: #0b0b0b;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: white;
+    }
+
+    .login-box {
+        background: #1a1a1a;
+        padding: 30px;
+        border-radius: 15px;
+        width: 300px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    h2 { margin-bottom: 20px; }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 8px;
+        border: none;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 15px;
+        background: #ff6b6b;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    button:hover { background: #ff4c4c; }
+
+    .error {
+        color: red;
+        margin-top: 10px;
+        font-size: 14px;
+    }
+  </style>
 </head>
 
-<body style="background:black;color:white;text-align:center;margin-top:100px;">
+<body>
 
-<h2>Login</h2>
+<!-- 🔐 Already logged in -->
+<script>
+  if(localStorage.getItem("user") === "admin"){
+      window.location.href = "admin.html";
+  }
+</script>
 
-<input id="email" placeholder="Email"><br><br>
-<input id="pass" type="password" placeholder="Password"><br><br>
+<div class="login-box">
+  <h2>🔐 Admin Login</h2>
 
-<button onclick="login()">Login</button>
+  <input type="text" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+
+  <div id="error" class="error"></div>
+</div>
 
 <script>
-  function login(){
-      let email = document.getElementById("email").value;
-      let pass = document.getElementById("pass").value;
 
-      // 🔥 Simple login logic
-      if(email === "admin@gmail.com" && pass === "1234"){
-          localStorage.setItem("user","admin");
+  function login(){
+
+      let email = document.getElementById("email").value.trim();
+      let password = document.getElementById("password").value.trim();
+      let errorBox = document.getElementById("error");
+
+      // ❗ Empty check
+      if(!email || !password){
+          errorBox.innerText = "Please fill all fields ⚠️";
+          return;
+      }
+
+      // ✅ Admin login
+      if(email === "admin" && password === "1234"){
+          localStorage.setItem("user", "admin");
           window.location.href = "admin.html";
       }
       else{
-          localStorage.setItem("user","user");
-          window.location.href = "index.html";
+          errorBox.innerText = "Invalid credentials ❌";
       }
   }
+
+  // ⌨️ Enter key support
+  document.addEventListener("keydown", function(e){
+      if(e.key === "Enter"){
+          login();
+      }
+  });
+
 </script>
 
 </body>
