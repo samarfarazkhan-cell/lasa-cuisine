@@ -49,7 +49,7 @@
   <div id="orders"></div>
 </div>
 
-<!-- 🔥 FIREBASE -->
+<!-- 🔥 FIREBASE SCRIPT -->
 <script type="module">
 
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -72,39 +72,44 @@
     const container = document.getElementById("orders");
     container.innerHTML = "";
 
-    const querySnapshot = await getDocs(collection(db, "orders"));
+    try{
+      const querySnapshot = await getDocs(collection(db, "orders"));
 
-    if(querySnapshot.empty){
-      container.innerHTML = `<p class="empty">No orders yet 😢</p>`;
-      return;
-    }
+      if(querySnapshot.empty){
+        container.innerHTML = `<p class="empty">No orders yet 😢</p>`;
+        return;
+      }
 
-    querySnapshot.forEach(doc => {
-      const order = doc.data();
+      querySnapshot.forEach(doc => {
+        const order = doc.data();
 
-      let total = order.total;
+        let html = `
+        <div class="order">
+          <h3>${order.name || "No Name"} | ₹${order.total || 0}</h3>
+          <p>${order.time || "No Time"}</p>
+          <p>📞 ${order.phone || "-"}</p>
+          <p>📍 ${order.address || "-"}</p>
+        `;
 
-      let html = `
-      <div class="order">
-        <h3>${order.name} | ₹${total}</h3>
-        <p>${order.time}</p>
-        <p>📞 ${order.phone}</p>
-        <p>📍 ${order.address}</p>
-      `;
+        // 🔥 SAFE ITEMS LOOP
+        if(order.items && Array.isArray(order.items)){
+          order.items.forEach(i=>{
+            html += `<div class="item">• ${i.item} x ${i.qty}</div>`;
+          });
+        }
 
-      order.items.forEach(i=>{
-        html += `<div class="item">• ${i.item} x ${i.qty}</div>`;
+        html += `</div>`;
+
+        container.innerHTML += html;
       });
 
-      html += `</div>`;
-
-      container.innerHTML += html;
-    });
+    }catch(err){
+      console.error("Firebase Error:", err);
+      container.innerHTML = `<p class="empty">Error loading orders ❌</p>`;
+    }
   }
 
   loadOrders();
-
-</script>
 
 </script>
 
