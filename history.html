@@ -5,7 +5,6 @@
   <title>Order History</title>
 
   <style>
-
     body {
         font-family: Arial;
         margin: 0;
@@ -13,13 +12,11 @@
         background: #0b0b0b;
     }
 
-    /* BOX */
     .container {
         max-width: 800px;
         margin: 40px auto;
     }
 
-    /* ORDER CARD */
     .order {
         background: #1a1a1a;
         padding: 15px;
@@ -37,13 +34,11 @@
         margin-left: 10px;
     }
 
-    /* EMPTY */
     .empty {
         text-align: center;
         margin-top: 50px;
         color: gray;
     }
-
   </style>
 </head>
 
@@ -51,28 +46,54 @@
 
 <div class="container">
   <h1>📜 Order History</h1>
-
   <div id="orders"></div>
 </div>
 
-<script>
+<!-- 🔥 FIREBASE -->
+<script type="module">
 
-  let orders = JSON.parse(localStorage.getItem("orders")) || [];
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-  let container = document.getElementById("orders");
+  const firebaseConfig = {
+    apiKey: "AIzaSyDdPkJcjawP46Bl81zr6KDl_eGiIwO7dCE",
+    authDomain: "lasa-cuisine.firebaseapp.com",
+    projectId: "lasa-cuisine",
+    storageBucket: "lasa-cuisine.firebasestorage.app",
+    messagingSenderId: "653046423280",
+    appId: "1:653046423280:web:5739519d03f5c1cb45ac35"
+  };
 
-  if(orders.length === 0){
-      container.innerHTML = `<p class="empty">No orders yet 😢</p>`;
-  }else{
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-      orders.reverse().forEach(order=>{
+  const container = document.getElementById("orders");
 
-          let total = order.items.reduce((s,i)=>s + i.price*i.qty,0);
+  // 🔥 LOAD FROM FIREBASE
+  async function loadOrders(){
+
+      const querySnapshot = await getDocs(collection(db, "orders"));
+
+      if(querySnapshot.empty){
+          container.innerHTML = `<p class="empty">No orders yet 😢</p>`;
+          return;
+      }
+
+      let orders = [];
+
+      querySnapshot.forEach(doc=>{
+          orders.push(doc.data());
+      });
+
+      // latest first
+      orders.reverse();
+
+      orders.forEach(order=>{
 
           let html = `
           <div class="order">
-              <h3>${order.name} | ₹${total}</h3>
-              <p>${order.date}</p>
+              <h3>${order.name} | ₹${order.total}</h3>
+              <p>📅 ${order.time}</p>
               <p>📞 ${order.phone}</p>
               <p>📍 ${order.address}</p>
           `;
@@ -86,6 +107,8 @@
           container.innerHTML += html;
       });
   }
+
+  loadOrders();
 
 </script>
 
