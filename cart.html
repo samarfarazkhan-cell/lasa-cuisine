@@ -9,14 +9,11 @@
         font-family: Arial;
         margin: 0;
         color: white;
-
         background:
         linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)),
         url("images/bg.jpeg");
-
         background-size: cover;
         background-position: center;
-        background-attachment: fixed;
     }
 
     .cart-wrapper {
@@ -25,12 +22,9 @@
         padding: 30px;
         background: rgba(20,20,20,0.9);
         border-radius: 15px;
-        box-shadow: 0 0 30px rgba(0,0,0,0.5);
     }
 
-    h1 {
-        text-align: center;
-    }
+    h1 { text-align: center; }
 
     .item {
         display: flex;
@@ -50,22 +44,13 @@
         cursor: pointer;
     }
 
-    .qty span {
-        margin: 0 10px;
-        font-size: 18px;
-    }
-
     #total {
         text-align: center;
         margin-top: 20px;
         color: #ff6b6b;
     }
 
-    .form-box {
-        margin-top: 20px;
-    }
-
-    .form-box input, .form-box textarea {
+    input, textarea {
         width: 100%;
         padding: 10px;
         margin-top: 10px;
@@ -81,7 +66,6 @@
         border: none;
         border-radius: 8px;
         color: white;
-        font-size: 16px;
         cursor: pointer;
     }
   </style>
@@ -90,76 +74,57 @@
 <body>
 
 <div class="cart-wrapper">
-
   <h1>Your Cart 🛒</h1>
 
   <div id="cart-items"></div>
-
   <h3 id="total"></h3>
 
-  <div class="form-box">
-    <input type="text" id="name" placeholder="Your Name">
-    <input type="text" id="phone" placeholder="Phone Number">
-    <textarea id="address" placeholder="Address"></textarea>
-  </div>
+  <input type="text" id="name" placeholder="Your Name">
+  <input type="text" id="phone" placeholder="Phone Number">
+  <textarea id="address" placeholder="Address"></textarea>
 
   <button class="order-btn" onclick="placeOrder()">Order on WhatsApp</button>
-
 </div>
 
 <script>
-
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
   function loadCart(){
-
       let container = document.getElementById("cart-items");
       let total = 0;
       container.innerHTML = "";
 
       if(cart.length === 0){
-          container.innerHTML = "<p style='text-align:center;color:gray;'>Cart is empty 🛒</p>";
-          document.getElementById("total").innerText = "";
+          container.innerHTML = "<p style='text-align:center;color:gray;'>Cart empty</p>";
           return;
       }
 
-      cart.forEach((item, index)=>{
-
+      cart.forEach((item, i)=>{
           total += item.price * item.qty;
 
           container.innerHTML += `
           <div class="item">
-              <div>${item.item}</div>
-              <div class="qty">
-                  <button onclick="dec(${index})">-</button>
-                  <span>${item.qty}</span>
-                  <button onclick="inc(${index})">+</button>
-                  ₹${item.price * item.qty}
-              </div>
-          </div>
-          `;
+            ${item.item}
+            <div class="qty">
+              <button onclick="dec(${i})">-</button>
+              <span>${item.qty}</span>
+              <button onclick="inc(${i})">+</button>
+              ₹${item.price * item.qty}
+            </div>
+          </div>`;
       });
 
       document.getElementById("total").innerText = "Total: ₹" + total;
   }
 
-  function inc(i){
-      cart[i].qty++;
-      save();
-  }
-
-  function dec(i){
-      cart[i].qty--;
-      if(cart[i].qty <= 0) cart.splice(i,1);
-      save();
-  }
+  function inc(i){ cart[i].qty++; save(); }
+  function dec(i){ cart[i].qty--; if(cart[i].qty<=0) cart.splice(i,1); save(); }
 
   function save(){
       localStorage.setItem("cart", JSON.stringify(cart));
       loadCart();
   }
 
-  /* WHATSAPP ORDER */
   function placeOrder(){
 
       let name = document.getElementById("name").value;
@@ -167,66 +132,93 @@
       let address = document.getElementById("address").value;
 
       if(!name || !phone || !address){
-          alert("Please fill all details");
+          alert("Fill all details");
           return;
       }
 
       if(cart.length === 0){
-          alert("Cart is empty ❌");
+          alert("Cart empty");
           return;
       }
 
-      // SAVE ORDER
-      saveOrder(name, phone, address, cart);
-
-      let message = "🛒 New Order\n\n";
-
-      cart.forEach(item=>{
-          message += `${item.item} x ${item.qty} = ₹${item.price * item.qty}\n`;
-      });
-
       let total = cart.reduce((s,i)=>s + i.price*i.qty,0);
 
-      message += `\nTotal: ₹${total}\n\n`;
-      message += `Name: ${name}\nPhone: ${phone}\nAddress: ${address}`;
-
-      let number = "919068347740";
-
-      let url = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
-
-      window.open(url, "_blank");
-
-      alert("Order Placed Successfully ✅");
-
-      // 🔥 FIX: Delay clear (important)
-      setTimeout(()=>{
-          localStorage.removeItem("cart");
-          window.location.reload();
-      }, 1500);
-  }
-
-  function saveOrder(name, phone, address, cart){
-
-      let orders = JSON.parse(localStorage.getItem("orders")) || [];
-
-      let newOrder = {
-          name,
-          phone,
-          address,
+      let orderData = {
+          name, phone, address,
           items: cart,
+          total,
           status: "Pending",
-          date: new Date().toISOString() // 🔥 FIXED DATE FORMAT
+          time: new Date().toLocaleString()
       };
 
-      orders.push(newOrder);
+      // WhatsApp
+      let msg = "🛒 New Order\n\n";
+      cart.forEach(i=>{
+          msg += `${i.item} x ${i.qty} = ₹${i.price*i.qty}\n`;
+      });
 
-      localStorage.setItem("orders", JSON.stringify(orders));
+      msg += `\nTotal: ₹${total}\n\n`;
+      msg += `Name: ${name}\nPhone: ${phone}\nAddress: ${address}`;
+
+      window.open(`https://wa.me/919068347740?text=${encodeURIComponent(msg)}`);
+
+      // 🔥 Firebase save (safe)
+      saveOrderToFirebase(orderData);
+
+      alert("Order Placed ✅");
+
+      setTimeout(()=>{
+          localStorage.removeItem("cart");
+          location.reload();
+      },1000);
+  }
+
+  // 🔥 Firebase function
+  async function saveOrderToFirebase(order){
+      try{
+          if(!window.db){
+              console.log("Firebase not ready ❌");
+              return;
+          }
+
+          await window.addDoc(window.collection(window.db, "orders"), order);
+
+          console.log("Saved 🔥");
+          alert("Order saved to database ✅");
+
+      }catch(e){
+          console.log("Error:", e);
+          alert("Error saving order ❌");
+      }
   }
 
   loadCart();
+</script>
 
+<!-- 🔥 FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDdPkJcjawP46Bl81zr6KDl_eGiIwO7dCE",
+    authDomain: "lasa-cuisine.firebaseapp.com",
+    projectId: "lasa-cuisine",
+    storageBucket: "lasa-cuisine.firebasestorage.app",
+    messagingSenderId: "653046423280",
+    appId: "1:653046423280:web:5739519d03f5c1cb45ac35"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // 🔥 GLOBAL
+  window.db = db;
+  window.addDoc = addDoc;
+  window.collection = collection;
+
+  console.log("Firebase Ready ✅");
 </script>
 
 </body>
 </html>
-

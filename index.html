@@ -417,6 +417,33 @@
     loadFoods();
 
 </script>
+<script type="module">
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+    import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDdPkJcjawP46Bl81zr6KDl_eGiIwO7dCE",
+      authDomain: "lasa-cuisine.firebaseapp.com",
+      projectId: "lasa-cuisine",
+      storageBucket: "lasa-cuisine.firebasestorage.app",
+      messagingSenderId: "653046423280",
+      appId: "1:653046423280:web:5739519d03f5c1cb45ac35",
+      measurementId: "G-D9T51CC5FL"
+    };
+
+    // 🔥 Firebase start
+    const app = initializeApp(firebaseConfig);
+
+    // 🔥 Database connect
+    const db = getFirestore(app);
+
+    // 🔥 Global access (VERY IMPORTANT)
+    window.db = db;
+    window.addDoc = addDoc;
+    window.collection = collection;
+
+</script>
 
 </body>
 </html>
