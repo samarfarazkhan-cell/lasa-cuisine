@@ -49,11 +49,9 @@
   <div id="orders"></div>
 </div>
 
-<!-- 🔥 FIREBASE SCRIPT -->
 <script type="module">
-
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+  import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDdPkJcjawP46Bl81zr6KDl_eGiIwO7dCE",
@@ -67,50 +65,42 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  async function loadOrders(){
+  const container = document.getElementById("orders");
 
-    const container = document.getElementById("orders");
-    container.innerHTML = "";
+  onSnapshot(collection(db, "orders"), (snapshot) => {
 
-    try{
-      const querySnapshot = await getDocs(collection(db, "orders"));
+      container.innerHTML = "";
 
-      if(querySnapshot.empty){
-        container.innerHTML = `<p class="empty">No orders yet 😢</p>`;
-        return;
+      if(snapshot.empty){
+          container.innerHTML = "<p class='empty'>No orders yet 😢</p>";
+          return;
       }
 
-      querySnapshot.forEach(doc => {
-        const order = doc.data();
+      snapshot.forEach(doc => {
+          const order = doc.data();
 
-        let html = `
-        <div class="order">
-          <h3>${order.name || "No Name"} | ₹${order.total || 0}</h3>
-          <p>${order.time || "No Time"}</p>
-          <p>📞 ${order.phone || "-"}</p>
-          <p>📍 ${order.address || "-"}</p>
-        `;
+          const total = (order.items || []).reduce(
+              (s,i)=> s + (i.price||0)*(i.qty||0), 0
+          );
 
-        // 🔥 SAFE ITEMS LOOP
-        if(order.items && Array.isArray(order.items)){
-          order.items.forEach(i=>{
-            html += `<div class="item">• ${i.item} x ${i.qty}</div>`;
+          let html = `
+          <div class="order">
+              <h3>${order.name || "User"} | ₹${total}</h3>
+              <p>${order.time || ""}</p>
+              <p>📞 ${order.phone || ""}</p>
+              <p>📍 ${order.address || ""}</p>
+          `;
+
+          (order.items || []).forEach(i=>{
+              html += `<div class="item">• ${i.item} x ${i.qty}</div>`;
           });
-        }
 
-        html += `</div>`;
+          html += `</div>`;
 
-        container.innerHTML += html;
+          container.innerHTML += html;
       });
 
-    }catch(err){
-      console.error("Firebase Error:", err);
-      container.innerHTML = `<p class="empty">Error loading orders ❌</p>`;
-    }
-  }
-
-  loadOrders();
-
+  });
 </script>
 
 </body>

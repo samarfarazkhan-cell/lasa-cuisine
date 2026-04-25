@@ -57,9 +57,8 @@
 <div class="container" id="orders"></div>
 
 <script type="module">
-
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, collection, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+  import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDdPkJcjawP46Bl81zr6KDl_eGiIwO7dCE",
@@ -73,80 +72,65 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  async function loadOrders(){
+  const container = document.getElementById("orders");
 
-    const container = document.getElementById("orders");
-    container.innerHTML = "";
+  onSnapshot(collection(db, "orders"), (snapshot)=>{
 
-    try{
-      const querySnapshot = await getDocs(collection(db, "orders"));
+      container.innerHTML = "";
 
-      if(querySnapshot.empty){
-        container.innerHTML = "<p style='text-align:center;color:gray;'>No Orders 📭</p>";
-        return;
-      }
+      snapshot.forEach(docSnap => {
 
-      querySnapshot.forEach((docSnap) => {
+          const order = docSnap.data();
+          const id = docSnap.id;
 
-        const order = docSnap.data();
-        const id = docSnap.id;
+          const total = (order.items || []).reduce((s,i)=>s + (i.price||0)*(i.qty||0),0);
 
-        let statusColor = order.status === "Completed" ? "green" : "orange";
+          let html = `
+          <div class="card">
+              <h3>₹${total}</h3>
+              <p>${order.time || ""}</p>
+              <p>👤 ${order.name || ""}</p>
+              <p>📞 ${order.phone || ""}</p>
+              <p>📍 ${order.address || ""}</p>
 
-        let html = `
-        <div class="card">
-          <h3>₹${order.total || 0}</h3>
-          <p>${order.time || "-"}</p>
-          <p>👤 ${order.name || "-"}</p>
-          <p>📞 ${order.phone || "-"}</p>
-          <p>📍 ${order.address || "-"}</p>
+              <p>${order.status}</p>
+          `;
 
-          <p style="color:${statusColor}; font-weight:bold;">
-            ${order.status || "Pending"}
-          </p>
-        `;
-
-        // 🔥 SAFE ITEMS LOOP
-        if(order.items && Array.isArray(order.items)){
-          order.items.forEach(i=>{
-            html += `<p>• ${i.item} x ${i.qty}</p>`;
+          (order.items || []).forEach(i=>{
+              html += `<p>• ${i.item} x ${i.qty}</p>`;
           });
-        }
 
-        html += `
-          <button class="done" onclick="toggleStatus('${id}', '${order.status}')">
-            Toggle Status
+          html += `
+          <button onclick="toggleStatus('${id}', '${order.status}')">
+              Toggle Status
           </button>
 
-          <button class="delete" onclick="deleteOrder('${id}')">
-            Delete
+          <button onclick="deleteOrder('${id}')">
+              Delete
           </button>
-        </div>
-        `;
 
-        container.innerHTML += html;
+          </div>
+          `;
+
+          container.innerHTML += html;
+
       });
 
-    }catch(err){
-      console.error("Firebase Error:", err);
-      container.innerHTML = "<p style='text-align:center;color:red;'>Error loading ❌</p>";
-    }
-  }
+  });
 
-  // 🔥 DELETE
-  window.deleteOrder = async function(id){
-    await deleteDoc(doc(db, "orders", id));
-    loadOrders();
-  }
+  // 🔥 Status update
+  window.toggleStatus = async (id, status)=>{
+      const ref = doc(db, "orders", id);
+      await updateDoc(ref, {
+          status: status === "Pending" ? "Completed" : "Pending"
+      });
+  };
 
-  // 🔥 TOGGLE STATUS
-  window.toggleStatus = async function(id, status){
-    let newStatus = status === "Pending" ? "Completed" : "Pending";
-    await updateDoc(doc(db, "orders", id), { status: newStatus });
-    loadOrders();
-  }
-
-  loadOrders();
+  // 🔥 Delete
+  window.deleteOrder = async (id)=>{
+      const ref = doc(db, "orders", id);
+      await deleteDoc(ref);
+  };
 
 </script>
 
