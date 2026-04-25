@@ -24,11 +24,6 @@
         margin-bottom: 20px;
     }
 
-    .order h3 {
-        margin: 0 0 10px;
-        color: #ff6b6b;
-    }
-
     .item {
         font-size: 14px;
         margin-left: 10px;
@@ -38,6 +33,19 @@
         text-align: center;
         margin-top: 50px;
         color: gray;
+    }
+
+    /* 🔔 Notification */
+    .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #4caf50;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 10px;
+        display: none;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
   </style>
 </head>
@@ -49,10 +57,13 @@
   <div id="orders"></div>
 </div>
 
+<div id="toast" class="toast">Order Completed ✅</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
   import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
+  // ✅ FULL CORRECT CONFIG
   const firebaseConfig = {
     apiKey: "AIzaSyDdPkJcjawP46Bl81zr6KDl_eGiIwO7dCE",
     authDomain: "lasa-cuisine.firebaseapp.com",
@@ -66,6 +77,10 @@
   const db = getFirestore(app);
 
   const container = document.getElementById("orders");
+  const toast = document.getElementById("toast");
+
+  // 🔁 previous state track
+  let prevStatus = {};
 
   onSnapshot(collection(db, "orders"), (snapshot) => {
 
@@ -77,7 +92,15 @@
       }
 
       snapshot.forEach(doc => {
+
           const order = doc.data();
+          const id = doc.id;
+
+          // 🔔 Notification logic
+          if(prevStatus[id] && prevStatus[id] === "Pending" && order.status === "Completed"){
+              showToast();
+          }
+          prevStatus[id] = order.status;
 
           const total = (order.items || []).reduce(
               (s,i)=> s + (i.price||0)*(i.qty||0), 0
@@ -89,6 +112,18 @@
               <p>${order.time || ""}</p>
               <p>📞 ${order.phone || ""}</p>
               <p>📍 ${order.address || ""}</p>
+
+              <span style="
+                  background:${order.status === 'Pending' ? '#ff9800' : '#4caf50'};
+                  padding:5px 12px;
+                  border-radius:20px;
+                  font-size:13px;
+                  color:white;
+                  display:inline-block;
+                  margin-top:5px;
+              ">
+                  ${order.status}
+              </span>
           `;
 
           (order.items || []).forEach(i=>{
@@ -101,6 +136,14 @@
       });
 
   });
+
+  // 🔔 Toast function
+  function showToast(){
+      toast.style.display = "block";
+      setTimeout(()=>{
+          toast.style.display = "none";
+      }, 3000);
+  }
 </script>
 
 </body>

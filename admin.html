@@ -44,18 +44,24 @@
 
 <body>
 
+<!-- 🔐 Login Check -->
 <script>
-  let pass = prompt("Enter Admin Password");
-  if(pass !== "1234"){
-      alert("Access Denied ❌");
-      window.location.href = "index.html";
+  if(localStorage.getItem("user") !== "admin"){
+      alert("Login first");
+      window.location.href = "login.html";
   }
 </script>
 
 <h1>📊 Admin Panel</h1>
 
+<!-- 🔓 Logout Button -->
+<div style="text-align:center;">
+  <button onclick="logout()">Logout</button>
+</div>
+
 <div class="container" id="orders"></div>
 
+<!-- 🔥 FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
   import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -74,6 +80,7 @@
 
   const container = document.getElementById("orders");
 
+  // 🔄 Real-time data
   onSnapshot(collection(db, "orders"), (snapshot)=>{
 
       container.innerHTML = "";
@@ -83,7 +90,9 @@
           const order = docSnap.data();
           const id = docSnap.id;
 
-          const total = (order.items || []).reduce((s,i)=>s + (i.price||0)*(i.qty||0),0);
+          const total = (order.items || []).reduce(
+              (s,i)=> s + (i.price||0)*(i.qty||0), 0
+          );
 
           let html = `
           <div class="card">
@@ -94,8 +103,8 @@
               <p>📍 ${order.address || ""}</p>
 
               <p style="color:${order.status === 'Pending' ? 'orange' : 'lime'}; font-weight:bold;">
-    ${order.status}
-</p>
+                  ${order.status}
+              </p>
           `;
 
           (order.items || []).forEach(i=>{
@@ -103,24 +112,22 @@
           });
 
           html += `
-          <button class="done" onclick="toggleStatus('${id}', '${order.status}')">
-    ${order.status === "Pending" ? "Mark Completed" : "Mark Pending"}
-</button>
+              <button class="done" onclick="toggleStatus('${id}', '${order.status}')">
+                  ${order.status === "Pending" ? "Mark Completed" : "Mark Pending"}
+              </button>
 
-          <button onclick="deleteOrder('${id}')">
-              Delete
-          </button>
-
+              <button class="delete" onclick="deleteOrder('${id}')">
+                  Delete
+              </button>
           </div>
           `;
 
           container.innerHTML += html;
-
       });
 
   });
 
-  // 🔥 Status update
+  // 🔁 Status Toggle
   window.toggleStatus = async (id, status)=>{
       const ref = doc(db, "orders", id);
       await updateDoc(ref, {
@@ -128,12 +135,19 @@
       });
   };
 
-  // 🔥 Delete
+  // 🗑 Delete Order
   window.deleteOrder = async (id)=>{
       const ref = doc(db, "orders", id);
       await deleteDoc(ref);
   };
+</script>
 
+<!-- 🔓 Logout Function -->
+<script>
+  function logout(){
+      localStorage.removeItem("user");
+      window.location.href = "login.html";
+  }
 </script>
 
 </body>

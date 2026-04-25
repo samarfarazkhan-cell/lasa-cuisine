@@ -13,7 +13,7 @@
         linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)),
         url("images/bg.jpeg");
         background-size: cover;
-        background-position: center;
+        background-attachment: fixed;
     }
 
     .cart-wrapper {
@@ -35,19 +35,19 @@
         margin-top: 10px;
     }
 
-    .qty button {
+    button {
         padding: 6px 12px;
         border: none;
-        background: black;
-        color: white;
         border-radius: 6px;
         cursor: pointer;
     }
 
-    #total {
-        text-align: center;
-        margin-top: 20px;
-        color: #ff6b6b;
+    .order-btn {
+        width: 100%;
+        margin-top: 15px;
+        padding: 12px;
+        background: #25D366;
+        color: white;
     }
 
     input, textarea {
@@ -58,15 +58,9 @@
         border: none;
     }
 
-    .order-btn {
-        width: 100%;
-        margin-top: 20px;
-        padding: 12px;
-        background: #25D366;
-        border: none;
-        border-radius: 8px;
-        color: white;
-        cursor: pointer;
+    #qr {
+        display: block;
+        margin: 20px auto;
     }
   </style>
 </head>
@@ -79,11 +73,14 @@
   <div id="cart-items"></div>
   <h3 id="total"></h3>
 
-  <input type="text" id="name" placeholder="Your Name">
-  <input type="text" id="phone" placeholder="Phone Number">
+  <input id="name" placeholder="Your Name">
+  <input id="phone" placeholder="Phone Number">
   <textarea id="address" placeholder="Address"></textarea>
 
+  <button class="order-btn" onclick="payNow()">Pay Now 💳</button>
   <button class="order-btn" onclick="placeOrder()">Order on WhatsApp</button>
+
+  <img id="qr">
 </div>
 
 <script>
@@ -94,20 +91,15 @@
       let total = 0;
       container.innerHTML = "";
 
-      if(cart.length === 0){
-          container.innerHTML = "<p style='text-align:center;color:gray;'>Cart empty</p>";
-          return;
-      }
-
-      cart.forEach((item, i)=>{
+      cart.forEach((item,i)=>{
           total += item.price * item.qty;
 
           container.innerHTML += `
           <div class="item">
             ${item.item}
-            <div class="qty">
+            <div>
               <button onclick="dec(${i})">-</button>
-              <span>${item.qty}</span>
+              ${item.qty}
               <button onclick="inc(${i})">+</button>
               ₹${item.price * item.qty}
             </div>
@@ -125,6 +117,21 @@
       loadCart();
   }
 
+  // 💳 PAYMENT
+  function payNow(){
+      let total = cart.reduce((s,i)=>s + i.price*i.qty,0);
+
+      let upi = "upi://pay?pa=yourupi@okaxis&pn=LasaCuisine&am="+total+"&cu=INR";
+
+      // QR generate
+      document.getElementById("qr").src =
+      "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(upi);
+
+      // Open UPI app
+      window.location.href = upi;
+  }
+
+  // 📲 WHATSAPP ORDER
   function placeOrder(){
 
       let name = document.getElementById("name").value;
@@ -133,11 +140,6 @@
 
       if(!name || !phone || !address){
           alert("Fill all details");
-          return;
-      }
-
-      if(cart.length === 0){
-          alert("Cart empty");
           return;
       }
 
@@ -151,7 +153,8 @@
           time: new Date().toLocaleString()
       };
 
-      // WhatsApp
+      saveOrderToFirebase(orderData);
+
       let msg = "🛒 New Order\n\n";
       cart.forEach(i=>{
           msg += `${i.item} x ${i.qty} = ₹${i.price*i.qty}\n`;
@@ -162,9 +165,6 @@
 
       window.open(`https://wa.me/919068347740?text=${encodeURIComponent(msg)}`);
 
-      // 🔥 Firebase save (safe)
-      saveOrderToFirebase(orderData);
-
       alert("Order Placed ✅");
 
       setTimeout(()=>{
@@ -173,22 +173,12 @@
       },1000);
   }
 
-  // 🔥 Firebase function
+  // 🔥 FIREBASE SAVE
   async function saveOrderToFirebase(order){
       try{
-          if(!window.db){
-              console.log("Firebase not ready ❌");
-              return;
-          }
-
-          await window.addDoc(window.collection(window.db, "orders"), order);
-
-          console.log("Saved 🔥");
-          alert("Order saved to database ✅");
-
+          await addDoc(collection(db, "orders"), order);
       }catch(e){
-          console.log("Error:", e);
-          alert("Error saving order ❌");
+          console.log(e);
       }
   }
 
@@ -212,12 +202,9 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // 🔥 GLOBAL
-  window.db = db;
   window.addDoc = addDoc;
   window.collection = collection;
-
-  console.log("Firebase Ready ✅");
+  window.db = db;
 </script>
 
 </body>
