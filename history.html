@@ -24,16 +24,9 @@
         margin-bottom: 20px;
     }
 
-    .item {
-        font-size: 14px;
-        margin-left: 10px;
-    }
+    .item { font-size: 14px; margin-left: 10px; }
 
-    .empty {
-        text-align: center;
-        margin-top: 50px;
-        color: gray;
-    }
+    .empty { text-align: center; margin-top: 50px; color: gray; }
 
     .toast {
         position: fixed;
@@ -49,13 +42,6 @@
 </head>
 
 <body>
-
-<!-- 🔐 LOGIN CHECK -->
-<script>
-  if(!localStorage.getItem("userData")){
-      window.location.href = "user-login.html";
-  }
-</script>
 
 <div class="container">
   <h1>📜 Order History</h1>
@@ -83,10 +69,6 @@
   const container = document.getElementById("orders");
   const toast = document.getElementById("toast");
 
-  // 👤 Current user
-  let user = JSON.parse(localStorage.getItem("userData"));
-
-  // 🔁 Track previous state
   let prevStatus = {};
 
   onSnapshot(collection(db, "orders"), (snapshot) => {
@@ -98,20 +80,12 @@
           return;
       }
 
-      let found = false;
-
       snapshot.forEach(doc => {
 
           const order = doc.data();
           const id = doc.id;
 
-          // 🔐 FILTER (ONLY USER ORDERS)
-          if(user && order.phone !== user.phone) return;
-
-          found = true;
-
-          // 🔔 Notification
-          if(prevStatus[id] && prevStatus[id] === "Pending" && order.status === "Completed"){
+          if(prevStatus[id] === "Pending" && order.status === "Completed"){
               showToast();
           }
           prevStatus[id] = order.status;
@@ -131,7 +105,6 @@
                   background:${order.status === 'Pending' ? '#ff9800' : '#4caf50'};
                   padding:5px 12px;
                   border-radius:20px;
-                  font-size:13px;
                   color:white;
               ">
                   ${order.status}
@@ -147,18 +120,11 @@
           container.innerHTML += html;
       });
 
-      if(!found){
-          container.innerHTML = "<p class='empty'>No orders found 😢</p>";
-      }
-
   });
 
-  // 🔔 Toast
   function showToast(){
       toast.style.display = "block";
-      setTimeout(()=>{
-          toast.style.display = "none";
-      }, 3000);
+      setTimeout(()=> toast.style.display = "none", 3000);
   }
 </script>
 

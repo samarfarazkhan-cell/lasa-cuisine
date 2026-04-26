@@ -12,22 +12,15 @@
         margin: 0;
     }
 
-    h1 {
-        text-align: center;
-        margin-top: 20px;
-    }
+    h1 { text-align: center; margin-top: 20px; }
 
-    .container {
-        max-width: 900px;
-        margin: auto;
-    }
+    .container { max-width: 900px; margin: auto; }
 
     .card {
         background: #1a1a1a;
         padding: 15px;
         margin: 15px;
         border-radius: 12px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
 
     button {
@@ -41,10 +34,12 @@
     .done { background: green; color: white; }
     .delete { background: red; color: white; }
 
-    .empty {
-        text-align:center;
-        color:gray;
-        margin-top:50px;
+    .stats {
+        display:flex;
+        gap:15px;
+        flex-wrap:wrap;
+        max-width:900px;
+        margin:20px auto;
     }
   </style>
 </head>
@@ -61,8 +56,23 @@
 
 <h1>📊 Admin Panel</h1>
 
+<audio id="sound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3"></audio>
 <div style="text-align:center;">
   <button onclick="logout()">Logout</button>
+</div>
+
+<!-- 🔥 STATS -->
+<div class="stats">
+  <div class="card"><h3>Total Orders</h3><p id="totalOrders">0</p></div>
+  <div class="card"><h3>Total Revenue</h3><p id="totalRevenue">₹0</p></div>
+  <div class="card"><h3>Today Orders</h3><p id="todayOrders">0</p></div>
+</div>
+
+<!-- 🔍 FILTER -->
+<div style="text-align:center;">
+  <button onclick="filterOrders('all')">All</button>
+  <button onclick="filterOrders('Pending')">Pending</button>
+  <button onclick="filterOrders('Completed')">Completed</button>
 </div>
 
 <div class="container" id="orders"></div>
@@ -85,28 +95,35 @@
 
   const container = document.getElementById("orders");
 
+  let currentFilter = "all";
+
   onSnapshot(collection(db, "orders"), (snapshot)=>{
 
       container.innerHTML = "";
 
-      if(snapshot.empty){
-          container.innerHTML = "<p class='empty'>No orders yet 📭</p>";
-          return;
-      }
+      let totalOrders = 0;
+      let totalRevenue = 0;
+      let todayOrders = 0;
 
-      // 🔥 Convert to array + reverse (latest first)
-      let orders = [];
-      snapshot.forEach(docSnap=>{
-          orders.push({id: docSnap.id, data: docSnap.data()});
-      });
+      let today = new Date().toDateString();
 
-      orders.reverse();
+      snapshot.forEach(docSnap => {
 
-      orders.forEach(({id, data: order})=>{
+          const order = docSnap.data();
+          const id = docSnap.id;
+
+          if(currentFilter !== "all" && order.status !== currentFilter) return;
 
           const total = (order.items || []).reduce(
               (s,i)=> s + (i.price||0)*(i.qty||0), 0
           );
+
+          totalOrders++;
+          totalRevenue += total;
+
+          if(order.time && new Date(order.time).toDateString() === today){
+              todayOrders++;
+          }
 
           let html = `
           <div class="card">
@@ -139,9 +156,12 @@
           container.innerHTML += html;
       });
 
+      document.getElementById("totalOrders").innerText = totalOrders;
+      document.getElementById("totalRevenue").innerText = "₹" + totalRevenue;
+      document.getElementById("todayOrders").innerText = todayOrders;
+
   });
 
-  // 🔁 Status toggle
   window.toggleStatus = async (id, status)=>{
       const ref = doc(db, "orders", id);
       await updateDoc(ref, {
@@ -149,14 +169,14 @@
       });
   };
 
-  // 🗑 Delete with confirmation
   window.deleteOrder = async (id)=>{
-      if(confirm("Delete this order?")){
-          const ref = doc(db, "orders", id);
-          await deleteDoc(ref);
-      }
+      const ref = doc(db, "orders", id);
+      await deleteDoc(ref);
   };
 
+  window.filterOrders = (type)=>{
+      currentFilter = type;
+  };
 </script>
 
 <script>

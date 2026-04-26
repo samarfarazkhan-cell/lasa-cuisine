@@ -66,7 +66,6 @@
 
 <body>
 
-<!-- 🔐 LOGIN CHECK -->
 <script>
   if(!localStorage.getItem("userData")){
       window.location.href = "user-login.html";
@@ -83,24 +82,37 @@
   <input id="phone" placeholder="Phone Number">
   <textarea id="address" placeholder="Address"></textarea>
 
-  <button class="order-btn" onclick="payNow()">Pay Now 💳</button>
-  <button class="order-btn" onclick="placeOrder()">Order on WhatsApp</button>
-
-  <img id="qr">
+  <button class="order-btn" onclick="placeOrder()">Place Order ✅</button>
 </div>
 
-<script>
+<script type="module">
 
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDdPkJcjawP46Bl81zr6KDl_eGiIwO7dCE",
+    authDomain: "lasa-cuisine.firebaseapp.com",
+    projectId: "lasa-cuisine",
+    storageBucket: "lasa-cuisine.firebasestorage.app",
+    messagingSenderId: "653046423280",
+    appId: "1:653046423280:web:5739519d03f5c1cb45ac35"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ===== CART =====
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  // 👤 AUTO FILL
+  // AUTO FILL
   let user = JSON.parse(localStorage.getItem("userData"));
   if(user){
       document.getElementById("name").value = user.name;
       document.getElementById("phone").value = user.phone;
   }
 
-  // 🛒 LOAD CART
+  // LOAD CART
   function loadCart(){
       let container = document.getElementById("cart-items");
       let total = 0;
@@ -130,44 +142,17 @@
       document.getElementById("total").innerText = "Total: ₹" + total;
   }
 
-  // ➕➖
-  function inc(i){ cart[i].qty++; save(); }
-  function dec(i){ cart[i].qty--; if(cart[i].qty<=0) cart.splice(i,1); save(); }
+  // INC DEC
+  window.inc = function(i){ cart[i].qty++; save(); }
+  window.dec = function(i){ cart[i].qty--; if(cart[i].qty<=0) cart.splice(i,1); save(); }
 
   function save(){
       localStorage.setItem("cart", JSON.stringify(cart));
       loadCart();
   }
 
-  // 💳 PAYMENT (FIXED)
-  function payNow(){
-
-      let name = document.getElementById("name").value;
-      let phone = document.getElementById("phone").value;
-      let address = document.getElementById("address").value;
-
-      if(!name || !phone || !address){
-          alert("Fill all details first");
-          return;
-      }
-
-      if(cart.length === 0){
-          alert("Cart empty");
-          return;
-      }
-
-      let total = cart.reduce((s,i)=>s + i.price*i.qty,0);
-
-      let upi = "upi://pay?pa=yourupi@okaxis&pn=LasaCuisine&am="+total+"&cu=INR";
-
-      document.getElementById("qr").src =
-      "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(upi);
-
-      window.location.href = upi;
-  }
-
-  // 📲 ORDER
-  function placeOrder(){
+  // ===== FINAL ORDER FUNCTION =====
+  window.placeOrder = async function(){
 
       let name = document.getElementById("name").value;
       let phone = document.getElementById("phone").value;
@@ -186,66 +171,44 @@
       let total = cart.reduce((s,i)=>s + i.price*i.qty,0);
 
       let orderData = {
-          name, phone, address,
+          name,
+          phone,
+          address,
           items: cart,
           total,
           status: "Pending",
-          time: new Date().toLocaleString()
+          time: new Date().toISOString()
       };
 
-      saveOrderToFirebase(orderData);
-
-      let msg = "🛒 New Order\n\n";
-      cart.forEach(i=>{
-          msg += `${i.item} x ${i.qty} = ₹${i.price*i.qty}\n`;
-      });
-
-      msg += `\nTotal: ₹${total}\n\n`;
-      msg += `Name: ${name}\nPhone: ${phone}\nAddress: ${address}`;
-
-      window.open(`https://wa.me/919068347740?text=${encodeURIComponent(msg)}`);
-
-      alert("Order Placed ✅");
-
-      setTimeout(()=>{
-          localStorage.removeItem("cart");
-          location.reload();
-      },1000);
-  }
-
-  // 🔥 FIREBASE SAVE
-  async function saveOrderToFirebase(order){
       try{
-          await addDoc(collection(db, "orders"), order);
-      }catch(e){
-          console.log(e);
+
+          await addDoc(collection(db, "orders"), orderData);
+
+          alert("Order Placed ✅");
+
+          // WhatsApp
+          let msg = "🛒 New Order\n\n";
+          cart.forEach(i=>{
+              msg += `${i.item} x ${i.qty} = ₹${i.price*i.qty}\n`;
+          });
+
+          msg += `\nTotal: ₹${total}\n\n`;
+          msg += `Name: ${name}\nPhone: ${phone}\nAddress: ${address}`;
+
+          window.open(`https://wa.me/919068347740?text=${encodeURIComponent(msg)}`);
+
+          localStorage.removeItem("cart");
+
+          window.location.href = "history.html";
+
+      } catch(e){
+          console.error(e);
+          alert("Order failed ❌");
       }
-  }
+  };
 
   loadCart();
 
-</script>
-
-<!-- 🔥 FIREBASE -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDdPkJcjawP46Bl81zr6KDl_eGiIwO7dCE",
-    authDomain: "lasa-cuisine.firebaseapp.com",
-    projectId: "lasa-cuisine",
-    storageBucket: "lasa-cuisine.firebasestorage.app",
-    messagingSenderId: "653046423280",
-    appId: "1:653046423280:web:5739519d03f5c1cb45ac35"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  window.addDoc = addDoc;
-  window.collection = collection;
-  window.db = db;
 </script>
 
 </body>

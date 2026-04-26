@@ -13,7 +13,7 @@ function getId(name){
 
 // ===== LOAD FOODS =====
 async function loadFoods() {
-    let container = document.getElementById("food-container");
+    let container = document.getElementById("food-list");
 
     container.innerHTML = "<p style='text-align:center;'>Loading 🍽️...</p>";
 
@@ -34,7 +34,7 @@ async function loadFoods() {
 
 // ===== RENDER =====
 function renderFoods(list){
-    let container = document.getElementById("food-container");
+    let container = document.getElementById("food-list");
     container.innerHTML = "";
 
     list.forEach(food => {
@@ -112,7 +112,7 @@ function updateCartCount() {
     }
 }
 
-// ===== SEARCH (DATA BASED) =====
+// ===== SEARCH =====
 function searchFood(value) {
     let filtered = foods.filter(f =>
         f.name.toLowerCase().includes(value.toLowerCase())
@@ -121,7 +121,7 @@ function searchFood(value) {
     renderFoods(filtered);
 }
 
-// 🔹 debounce (smooth typing)
+// 🔹 debounce
 let timer;
 function handleSearch(){
     clearTimeout(timer);
@@ -138,12 +138,14 @@ function toggleDark() {
 
     let btn = document.getElementById("darkBtn");
 
-    if (document.body.classList.contains("dark")) {
-        btn.innerText = "☀️";
-        localStorage.setItem("theme", "dark");
-    } else {
-        btn.innerText = "🌙";
-        localStorage.setItem("theme", "light");
+    if (btn) {
+        if (document.body.classList.contains("dark")) {
+            btn.innerText = "☀️";
+            localStorage.setItem("theme", "dark");
+        } else {
+            btn.innerText = "🌙";
+            localStorage.setItem("theme", "light");
+        }
     }
 }
 
@@ -152,6 +154,18 @@ if (localStorage.getItem("theme") === "dark") {
     document.body.classList.add("dark");
 }
 
-// ===== INIT =====
-loadFoods();
-updateCartCount();
+// 🔐 ADMIN BUTTON
+function checkAdmin(){
+    let btn = document.getElementById("adminBtn");
+
+    if(btn && localStorage.getItem("user") === "admin"){
+        btn.style.display = "inline-block";
+    }
+}
+
+// ===== SAFE INIT =====
+window.addEventListener("DOMContentLoaded", () => {
+    loadFoods();
+    updateCartCount();
+    checkAdmin();
+});
